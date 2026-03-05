@@ -1,0 +1,35 @@
+CC = clang
+CF = -Wall -Wextra -march=native -O3 -flto
+DF = -g3 -DDEBUG_MODE
+
+SRC_DIR = compiler
+BUILD_DIR = build
+BIN_DIR = $(BUILD_DIR)/bin
+
+COMPILER = $(BIN_DIR)/lilium
+
+SRCS 	= $(shell find $(SRC_DIR) -name "*.c")
+OBJECTS = $(SRCS:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+
+.PHONY: clean debug
+
+$(COMPILER): $(OBJECTS) | $(BIN_DIR)
+	$(CC) $(CF) -o $@ $(OBJECTS)
+
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+	mkdir -p $(dir $@)
+	$(CC) $(CF) -c $< -o $@
+
+debug: CF += $(DF) 
+debug: $(COMPILER)
+
+$(BUILD_DIR):
+	mkdir -p $@
+
+$(BIN_DIR): | $(BUILD_DIR)
+	mkdir -p $@
+
+clean:
+	rm -rvf $(BIN_DIR)
+	rm -rvf $(BUILD_DIR)
+
