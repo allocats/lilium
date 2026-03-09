@@ -44,8 +44,6 @@ loop
 import
 module
 
-alias
-
 fn 
 macro
 
@@ -67,6 +65,6 @@ continue
 
 ### Attributes
 
-extern
+external
 inline
 static

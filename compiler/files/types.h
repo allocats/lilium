@@ -14,6 +14,9 @@ typedef struct {
 
 typedef struct {
     FileEntry* entries;
-    usize count;
-    usize capacity;
+    u32 count;
+    u32 capacity;
+
+    // essentially a checkpoint marker
+    u32 tokenised;
 } FileEntries;

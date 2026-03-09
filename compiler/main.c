@@ -2,9 +2,14 @@
 #include "cli/cli.h"
 #include "diagnostics/diagnostics.h"
 #include "files/files.h"
+#include "lexer/lexer.h"
 #include "lilium/lilium.h"
 #include "utils/timer.h"
 #include "utils/types.h"
+
+#ifdef DEBUG_MODE
+#include "token/token.h"
+#endif /* ifdef DEBUG_MODE */
 
 #include <stdio.h>
 
@@ -52,9 +57,13 @@ i32 main(i32 argc, char** argv) {
 
     timer_start(&timer);
 
-    // lex()
+    lex_tokens(&lilium_ctx.tokens);
 
     timer_end(&timer);
+
+    #ifdef DEBUG_MODE
+    print_tokens(stdout, lilium_ctx.tokens);
+    #endif /* ifdef DEBUG_MODE */
 
 compiler_exit:; // Semicolon hack to allow for declarations, archaic language sigh
     i32 exit_code = 0;
@@ -63,6 +72,9 @@ compiler_exit:; // Semicolon hack to allow for declarations, archaic language si
         exit_code = 1;
 
         diagnostics_print();
+
+        file_entries_cleanup(&lilium_ctx.file_entries);
+        arena_free(&global_arena);
 
         fprintf(
             stderr,
@@ -76,6 +88,9 @@ compiler_exit:; // Semicolon hack to allow for declarations, archaic language si
             ANSI_RESET
         );
     } else {
+        file_entries_cleanup(&lilium_ctx.file_entries);
+        arena_free(&global_arena);
+
         fprintf(
             stderr,
             "\ncompiled %s%ssuccessfully%s in %.3fms\n",
@@ -85,9 +100,6 @@ compiler_exit:; // Semicolon hack to allow for declarations, archaic language si
             time_elapsed_in_ms(timer)
         );
     }
-
-    file_entries_cleanup(&lilium_ctx.file_entries);
-    arena_free(&global_arena);
 
     return exit_code;
 }

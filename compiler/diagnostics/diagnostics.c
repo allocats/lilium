@@ -16,6 +16,42 @@ void init_diagnostic_context(ArenaAllocator* arena, DiagnosticCtx* ctx) {
     ctx -> error_count = 0;
 }
 
+void err_file_invalid(const char* path) {
+    fprintf(
+        stderr,
+        "%serror:%s %sinvalid file '%s' expected 'path/to/file.lily'%s\n",
+        ANSI_RED,
+        ANSI_RESET,
+        ANSI_BOLD,
+        path,
+        ANSI_RESET
+    );
+}
+
+void err_file_not_found(const char* path) {
+    fprintf(
+        stderr,
+        "%serror:%s %scannot find file '%s'%s\n",
+        ANSI_RED,
+        ANSI_RESET,
+        ANSI_BOLD,
+        path,
+        ANSI_RESET
+    );
+}
+
+void err_file_cant_open(const char* path) {
+    fprintf(
+        stderr,
+        "%serror:%s %scannot open file '%s'%s\n",
+        ANSI_RED,
+        ANSI_RESET,
+        ANSI_BOLD,
+        path,
+        ANSI_RESET
+    );
+}
+
 const char* match_level_colour(DiagKind kind) {
     switch (kind) {
         case DIAG_NOTE: {
@@ -181,40 +217,4 @@ void diagnostics_print(void) {
         fprintf(stderr, "\n");
         fprintf(stderr, "%s %s|%s\n\n", line_indent, ANSI_BOLD, ANSI_RESET);
     }
-}
-
-void err_file_invalid(const char* path) {
-    fprintf(
-        stderr,
-        "%serror:%s %sinvalid file '%s' expected 'path/to/file.lily'%s\n",
-        ANSI_RED,
-        ANSI_RESET,
-        ANSI_BOLD,
-        path,
-        ANSI_RESET
-    );
-}
-
-void err_file_not_found(const char* path) {
-    fprintf(
-        stderr,
-        "%serror:%s %scannot find file '%s'%s\n",
-        ANSI_RED,
-        ANSI_RESET,
-        ANSI_BOLD,
-        path,
-        ANSI_RESET
-    );
-}
-
-void err_file_cant_open(const char* path) {
-    fprintf(
-        stderr,
-        "%serror:%s %scannot open file '%s'%s\n",
-        ANSI_RED,
-        ANSI_RESET,
-        ANSI_BOLD,
-        path,
-        ANSI_RESET
-    );
 }
