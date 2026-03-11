@@ -52,6 +52,19 @@ void err_file_cant_open(const char* path) {
     );
 }
 
+
+void err_delim_stack_max() {
+
+}
+
+void err_delim_stack_mismatch() {
+
+}
+
+void err_delim_stack_unopened() {
+
+}
+
 const char* match_level_colour(DiagKind kind) {
     switch (kind) {
         case DIAG_NOTE: {
