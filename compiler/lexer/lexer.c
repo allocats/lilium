@@ -104,6 +104,11 @@ char* lex_word(Tokens* tokens, char* cursor) {
 
     switch (*start) {
         case 'b': {
+            if (matches("bool", start, length)) {
+                token -> kind = TOK_BOOL;
+                break;
+            }
+
             if (matches("break", start, length)) {
                 token -> kind = TOK_BREAK;
                 break;
@@ -113,6 +118,11 @@ char* lex_word(Tokens* tokens, char* cursor) {
         } break;
 
         case 'c': {
+            if (matches("char", start, length)) {
+                token -> kind = TOK_CHAR;
+                break;
+            }
+
             if (matches("const", start, length)) {
                 token -> kind = TOK_CONST;
                 break;
@@ -160,6 +170,16 @@ char* lex_word(Tokens* tokens, char* cursor) {
                 break;
             }
 
+            if (matches("f32", start, length)) {
+                token -> kind = TOK_F32;
+                break;
+            }
+
+            if (matches("f64", start, length)) {
+                token -> kind = TOK_F64;
+                break;
+            }
+
             if (matches("for", start, length)) {
                 token -> kind = TOK_FOR;
                 break;
@@ -176,6 +196,31 @@ char* lex_word(Tokens* tokens, char* cursor) {
         case 'i': {
             if (matches("if", start, length)) {
                 token -> kind = TOK_IF;
+                break;
+            }
+
+            if (matches("i8", start, length)) {
+                token -> kind = TOK_I8;
+                break;
+            }
+
+            if (matches("i16", start, length)) {
+                token -> kind = TOK_I16;
+                break;
+            }
+
+            if (matches("i32", start, length)) {
+                token -> kind = TOK_I32;
+                break;
+            }
+
+            if (matches("i64", start, length)) {
+                token -> kind = TOK_I64;
+                break;
+            }
+
+            if (matches("isize", start, length)) {
+                token -> kind = TOK_ISIZE;
                 break;
             }
 
@@ -244,6 +289,11 @@ char* lex_word(Tokens* tokens, char* cursor) {
         } break;
 
         case 's': {
+            if (matches("str", start, length)) {
+                token -> kind = TOK_STR;
+                break;
+            }
+
             if (matches("struct", start, length)) {
                 token -> kind = TOK_STRUCT;
                 break;
@@ -267,6 +317,31 @@ char* lex_word(Tokens* tokens, char* cursor) {
         } break;
 
         case 'u': {
+            if (matches("u8", start, length)) {
+                token -> kind = TOK_U8;
+                break;
+            }
+
+            if (matches("u16", start, length)) {
+                token -> kind = TOK_U16;
+                break;
+            }
+
+            if (matches("u32", start, length)) {
+                token -> kind = TOK_U32;
+                break;
+            }
+
+            if (matches("u64", start, length)) {
+                token -> kind = TOK_U64;
+                break;
+            }
+
+            if (matches("usize", start, length)) {
+                token -> kind = TOK_USIZE;
+                break;
+            }
+
             if (matches("union", start, length)) {
                 token -> kind = TOK_UNION;
                 break;

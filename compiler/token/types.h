@@ -2,119 +2,139 @@
 
 #include "../utils/types.h"
 
-#define X(TOK)          \
-    TOK(TOK_UNKNOWN)    \
-    TOK(TOK_ERROR)      \
-    TOK(TOK_EOF)        \
+#define TOKENS(X)       \
+    X(TOK_UNKNOWN)      \
+    X(TOK_ERROR)        \
+    X(TOK_EOF)          \
                         \
-    TOK(TOK_IDENT)      \
-    TOK(TOK_FLOAT_LIT)  \
-    TOK(TOK_INTEGER_LIT)\
-    TOK(TOK_STRING_LIT) \
-    TOK(TOK_CHAR_LIT)   \
+    X(TOK_I8)           \
+    X(TOK_I16)          \
+    X(TOK_I32)          \
+    X(TOK_I64)          \
                         \
-    TOK(TOK_FALSE)      \
-    TOK(TOK_TRUE)       \
-    TOK(TOK_NULL)       \
+    X(TOK_U8)           \
+    X(TOK_U16)          \
+    X(TOK_U32)          \
+    X(TOK_U64)          \
                         \
-    TOK(TOK_IF)         \
-    TOK(TOK_ELSE)       \
-    TOK(TOK_MATCH)      \
+    X(TOK_F32)          \
+    X(TOK_F64)          \
                         \
-    TOK(TOK_WHILE)      \
-    TOK(TOK_FOR)        \
-    TOK(TOK_LOOP)       \
+    X(TOK_CHAR)         \
+    X(TOK_STR)          \
                         \
-    TOK(TOK_IMPORT)     \
-    TOK(TOK_MODULE)     \
+    X(TOK_BOOL)         \
+    X(TOK_ISIZE)        \
+    X(TOK_USIZE)        \
                         \
-    TOK(TOK_ALIAS)      \
+    X(TOK_IDENT)        \
+    X(TOK_FLOAT_LIT)    \
+    X(TOK_INTEGER_LIT)  \
+    X(TOK_STRING_LIT)   \
+    X(TOK_CHAR_LIT)     \
                         \
-    TOK(TOK_FN)         \
-    TOK(TOK_MACRO)      \
+    X(TOK_FALSE)        \
+    X(TOK_TRUE)         \
+    X(TOK_NULL)         \
                         \
-    TOK(TOK_ENUM)       \
-    TOK(TOK_STRUCT)     \
-    TOK(TOK_UNION)      \
+    X(TOK_IF)           \
+    X(TOK_ELSE)         \
+    X(TOK_MATCH)        \
                         \
-    TOK(TOK_INLINE)     \
-    TOK(TOK_EXTERNAL)   \
-    TOK(TOK_STATIC)     \
+    X(TOK_WHILE)        \
+    X(TOK_FOR)          \
+    X(TOK_LOOP)         \
                         \
-    TOK(TOK_LET)        \
-    TOK(TOK_CONST)      \
-    TOK(TOK_DEFER)      \
-    TOK(TOK_RETURN)     \
-    TOK(TOK_BREAK)      \
-    TOK(TOK_CONTINUE)   \
+    X(TOK_IMPORT)       \
+    X(TOK_MODULE)       \
                         \
-    TOK(TOK_HASH)       \
-    TOK(TOK_AT)         \
+    X(TOK_ALIAS)        \
                         \
-    TOK(TOK_DOT)        \
-    TOK(TOK_DOT_DOT)    \
-    TOK(TOK_DOT_DOT_DOT)\
-    TOK(TOK_COMMA)      \
-    TOK(TOK_COLON)      \
-    TOK(TOK_SEMI)       \
-    TOK(TOK_ARROW)      \
+    X(TOK_FN)           \
+    X(TOK_MACRO)        \
                         \
-    TOK(TOK_LBRACE)     \
-    TOK(TOK_RBRACE)     \
-    TOK(TOK_LPAREN)     \
-    TOK(TOK_RPAREN)     \
-    TOK(TOK_LBRACKET)   \
-    TOK(TOK_RBRACKET)   \
+    X(TOK_ENUM)         \
+    X(TOK_STRUCT)       \
+    X(TOK_UNION)        \
                         \
-    TOK(TOK_EQ)         \
-    TOK(TOK_EQ_EQ)      \
-    TOK(TOK_BANG)       \
-    TOK(TOK_BANG_EQ)    \
+    X(TOK_INLINE)       \
+    X(TOK_EXTERNAL)     \
+    X(TOK_STATIC)       \
                         \
-    TOK(TOK_MINUS)      \
-    TOK(TOK_MINUS_EQ)   \
-    TOK(TOK_PLUS)       \
-    TOK(TOK_PLUS_EQ)    \
-    TOK(TOK_STAR)       \
-    TOK(TOK_STAR_EQ)    \
-    TOK(TOK_SLASH)      \
-    TOK(TOK_SLASH_EQ)   \
-    TOK(TOK_PERCENT)    \
-    TOK(TOK_PERCENT_EQ) \
+    X(TOK_LET)          \
+    X(TOK_CONST)        \
+    X(TOK_DEFER)        \
+    X(TOK_RETURN)       \
+    X(TOK_BREAK)        \
+    X(TOK_CONTINUE)     \
                         \
-    TOK(TOK_AMP)        \
-    TOK(TOK_AMP_AMP)    \
-    TOK(TOK_AMP_EQ)     \
+    X(TOK_HASH)         \
+    X(TOK_AT)           \
                         \
-    TOK(TOK_PIPE)       \
-    TOK(TOK_PIPE_PIPE)  \
-    TOK(TOK_PIPE_EQ)    \
+    X(TOK_DOT)          \
+    X(TOK_DOT_DOT)      \
+    X(TOK_DOT_DOT_DOT)  \
+    X(TOK_COMMA)        \
+    X(TOK_COLON)        \
+    X(TOK_SEMI)         \
+    X(TOK_ARROW)        \
                         \
-    TOK(TOK_TILDE)      \
-    TOK(TOK_TILDE_EQ)   \
+    X(TOK_LBRACE)       \
+    X(TOK_RBRACE)       \
+    X(TOK_LPAREN)       \
+    X(TOK_RPAREN)       \
+    X(TOK_LBRACKET)     \
+    X(TOK_RBRACKET)     \
                         \
-    TOK(TOK_CARET)      \
-    TOK(TOK_CARET_EQ)   \
+    X(TOK_EQ)           \
+    X(TOK_EQ_EQ)        \
+    X(TOK_BANG)         \
+    X(TOK_BANG_EQ)      \
                         \
-    TOK(TOK_LT)         \
-    TOK(TOK_LT_EQ)      \
-    TOK(TOK_SHL)        \
-    TOK(TOK_SHL_EQ)     \
+    X(TOK_MINUS)        \
+    X(TOK_MINUS_EQ)     \
+    X(TOK_PLUS)         \
+    X(TOK_PLUS_EQ)      \
+    X(TOK_STAR)         \
+    X(TOK_STAR_EQ)      \
+    X(TOK_SLASH)        \
+    X(TOK_SLASH_EQ)     \
+    X(TOK_PERCENT)      \
+    X(TOK_PERCENT_EQ)   \
                         \
-    TOK(TOK_GT)         \
-    TOK(TOK_GT_EQ)      \
-    TOK(TOK_SHR)        \
-    TOK(TOK_SHR_EQ)     \
+    X(TOK_AMP)          \
+    X(TOK_AMP_AMP)      \
+    X(TOK_AMP_EQ)       \
+                        \
+    X(TOK_PIPE)         \
+    X(TOK_PIPE_PIPE)    \
+    X(TOK_PIPE_EQ)      \
+                        \
+    X(TOK_TILDE)        \
+    X(TOK_TILDE_EQ)     \
+                        \
+    X(TOK_CARET)        \
+    X(TOK_CARET_EQ)     \
+                        \
+    X(TOK_LT)           \
+    X(TOK_LT_EQ)        \
+    X(TOK_SHL)          \
+    X(TOK_SHL_EQ)       \
+                        \
+    X(TOK_GT)           \
+    X(TOK_GT_EQ)        \
+    X(TOK_SHR)          \
+    X(TOK_SHR_EQ)       \
 
 typedef enum {
-    X(GENERATE_ENUM)
+    TOKENS(GENERATE_ENUM)
 } TokenKind;
 
 static const char* TOKEN_KIND_STRINGS[] = {
-    X(GENERATE_STRING)
+    TOKENS(GENERATE_STRING)
 };
 
-#undef X
+#undef TOKENS 
 
 typedef struct {
     char* lexeme;
