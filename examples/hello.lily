@@ -2,10 +2,4 @@ import "std/io";
 
 fn main() {
     println("Hello lilies!");
-
-    if (x == (10 << 1)) {
-        while (@min(x, y)) {
-            println("pluh");
-        }
-    }
 }
