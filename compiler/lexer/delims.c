@@ -1,31 +1,33 @@
 #include "delims.h"
 
+#include "../diagnostics/diagnostics.h"
+
 #include <stdio.h>
 
 void match_delim(DelimStack* stack, Token* token, u32 index) {
     Token* popped = delim_stack_pop(stack);
 
-    if (popped == nullptr) {
-        // err_delim_unopened(token, index);
+    if (popped == null) {
+        err_delim_stack_unopened(token, index);
         return;
     }
 
     switch (token -> kind) {
         case TOK_RPAREN: {
             if (popped -> kind != TOK_LPAREN) {
-                // err_delim_mismatch(token, index);
+                err_delim_stack_mismatch(token, index);
             }
         } break;
 
         case TOK_RBRACE: {
             if (popped -> kind != TOK_LBRACE) {
-                // err_delim_mismatch(token, index);
+                err_delim_stack_mismatch(token, index);
             }
         } break;
 
         case TOK_RBRACKET: {
             if (popped -> kind != TOK_LBRACKET) {
-                // err_delim_mismatch(token, index);
+                err_delim_stack_mismatch(token, index);
             }
         } break;
 
@@ -43,7 +45,7 @@ void match_delim(DelimStack* stack, Token* token, u32 index) {
 
 void delim_stack_push(DelimStack* stack, Token* token, u32 index)  {
     if (stack -> top + 1 >= MAX_DELIM_STACK) {
-        // err_delim_stack_max(token, index);
+        err_delim_stack_max(token, index);
         return;
     }
 

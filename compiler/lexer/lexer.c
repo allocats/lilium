@@ -2,11 +2,10 @@
 
 #include "delims.h"
 
+#include "../diagnostics/diagnostics.h"
 #include "../lilium/types.h"
 #include "../utils/macros.h"
-#include "types.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #define IS_DIGIT(c) (char_map[(unsigned char)(c)] & 1)
@@ -30,8 +29,8 @@ char* lex_word(Tokens* tokens, char* cursor);
 char* lex_number(Tokens* tokens, char* cursor);
 char* lex_delimeter(Tokens* tokens, DelimStack* stack, char* cursor, u32 file_index);
 char* lex_operator(Tokens* tokens, char* cursor);
-char* lex_char_lit(Tokens* tokens, char* cursor);
-char* lex_string_lit(Tokens* tokens, char* cursor);
+char* lex_char_lit(Tokens* tokens, char* cursor, u32 file_index);
+char* lex_string_lit(Tokens* tokens, char* cursor, u32 file_index);
 char* lex_invalid(Tokens* tokens, char* cursor);
 
 void lex_tokens(Tokens* tokens) {
@@ -67,16 +66,26 @@ void lex_tokens(Tokens* tokens) {
             } else if (IS_OPERATOR(c)) {
                 cursor = lex_operator(tokens, cursor);
             } else if (IS_CHAR_DELIM(c)) {
-                cursor = lex_char_lit(tokens, cursor);
+                cursor = lex_char_lit(tokens, cursor, i);
             } else if (IS_STRING_DELIM(c)) {
-                cursor = lex_string_lit(tokens, cursor);
+                cursor = lex_string_lit(tokens, cursor, i);
             } else {
                 cursor = lex_invalid(tokens, cursor);
+            }
+        }
+
+        if (delim_stack.top != -1) {
+            isize count = delim_stack.top;
+
+            for (isize n = 0; n < count + 1; n++) {
+                Token* token = delim_stack.delims[n];
+                err_delim_stack_unclosed(token, i);
             }
         }
     }
 
     lilium_ctx.file_entries.tokenised = lilium_ctx.file_entries.count;
+
 }
 
 char* lex_word(Tokens* tokens, char* cursor) {
@@ -591,7 +600,7 @@ char* lex_operator(Tokens* tokens, char* cursor) {
     return cursor;
 }
 
-char* lex_char_lit(Tokens* tokens, char* cursor) {
+char* lex_char_lit(Tokens* tokens, char* cursor, u32 file_index) {
     Token* token = &tokens -> items[tokens -> count++];
 
     token -> kind = TOK_CHAR_LIT;
@@ -600,10 +609,10 @@ char* lex_char_lit(Tokens* tokens, char* cursor) {
     char* start = cursor++;
 
     if (*cursor == '\'') {
-        // error: empty literal
-
         token -> kind = TOK_ERROR;
         token -> length = cursor - start;
+
+        err_lex_char_literal_empty(token, file_index);
 
         return cursor + 1;
     }
@@ -615,26 +624,27 @@ char* lex_char_lit(Tokens* tokens, char* cursor) {
     cursor++;
 
     if (*cursor != '\'') {
-        // error missing closing literal
-        
         token -> kind = TOK_ERROR;
         token -> length = cursor - start;
+
+        err_lex_char_literal_unterminated(token, file_index);
 
         return cursor + 1;
     }
 
     token -> lexeme = start;
-    token -> length = cursor - start; 
+    token -> length = ++cursor - start; 
 
     return cursor;
 }
 
-char* lex_string_lit(Tokens* tokens, char* cursor) {
+char* lex_string_lit(Tokens* tokens, char* cursor, u32 file_index) {
     Token* token = &tokens -> items[tokens -> count++];
 
-    token -> kind = TOK_STRING_LIT;
-
     char* start = cursor;
+
+    token -> kind = TOK_STRING_LIT;
+    token -> lexeme = start; 
 
     cursor++;
 
@@ -647,13 +657,12 @@ char* lex_string_lit(Tokens* tokens, char* cursor) {
     }
 
     if (*cursor != '\"') {
-        // unterminated string delimiter
+        err_lex_string_literal_unterminated(token, file_index);
         token -> kind = TOK_ERROR;
     }
 
     cursor++;
 
-    token -> lexeme = start; 
     token -> length = cursor - start;
 
     return cursor;

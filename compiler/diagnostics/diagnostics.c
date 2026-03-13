@@ -6,8 +6,17 @@
 
 #include <stdio.h>
 
-extern DiagnosticCtx diag_ctx;
 extern LiliumContext lilium_ctx;
+extern DiagnosticCtx diag_ctx;
+
+static void diagnostics_extend() {
+    if (UNLIKELY(diag_ctx.diag_count >= diag_ctx.diag_capacity)) {
+        usize size = diag_ctx.diag_capacity * sizeof(Diagnostic);
+
+        diag_ctx.diags = arena_realloc(lilium_ctx.arena, diag_ctx.diags, size, size * 2);
+        diag_ctx.diag_capacity *= 2;
+    }
+}
 
 void init_diagnostic_context(ArenaAllocator* arena, DiagnosticCtx* ctx) {
     ctx -> diags = arena_alloc(arena, sizeof(Diagnostic) * 32);
@@ -52,17 +61,260 @@ void err_file_cant_open(const char* path) {
     );
 }
 
+void err_lex_char_literal_empty(Token* token, u32 file_index) {
+    diagnostics_extend();
 
-void err_delim_stack_max() {
+    Diagnostic* diag = &diag_ctx.diags[diag_ctx.diag_count++];
 
+    diag -> kind = DIAG_ERR;
+    diag -> msg = "empty char literal";
+    diag -> index = file_index;
+    diag -> help = "this literal cannot be empty";
+
+    u32 line = 1;
+    u32 col = 1;
+
+    const char* cursor = lilium_ctx.file_entries.entries[file_index].buffer;
+
+    while (cursor < token -> lexeme) {
+        if (*cursor == '\n') {
+            line++;
+            col = 1;
+        } else {
+            col++;
+        }
+
+        cursor++;
+    }
+
+    diag -> line = line;
+    diag -> col = col;
+    diag -> len = token -> length;
+
+    diag_ctx.error_count++;
 }
 
-void err_delim_stack_mismatch() {
+void err_lex_char_literal_unterminated(Token* token, u32 file_index) {
+    diagnostics_extend();
 
+    Diagnostic* diag = &diag_ctx.diags[diag_ctx.diag_count++];
+
+    diag -> kind = DIAG_ERR;
+    diag -> msg = "unterminated char literal";
+    diag -> index = file_index;
+    diag -> help = "add a closing ' for this char literal here";
+
+    u32 line = 1;
+    u32 col = 1;
+
+    const char* cursor = lilium_ctx.file_entries.entries[file_index].buffer;
+
+    while (cursor < token -> lexeme) {
+        if (*cursor == '\n') {
+            line++;
+            col = 1;
+        } else {
+            col++;
+        }
+
+        cursor++;
+    }
+
+    diag -> line = line;
+    diag -> col = col;
+    diag -> len = 1;
+
+    diag_ctx.error_count++;
 }
 
-void err_delim_stack_unopened() {
+void err_lex_string_literal_unterminated(Token* token, u32 file_index) {
+    diagnostics_extend();
 
+    Diagnostic* diag = &diag_ctx.diags[diag_ctx.diag_count++];
+
+    diag -> kind = DIAG_ERR;
+    diag -> msg = "unterminated string literal";
+    diag -> index = file_index;
+    diag -> help = "add a closing \" for this string literal";
+
+    u32 line = 1;
+    u32 col = 1;
+
+    const char* cursor = lilium_ctx.file_entries.entries[file_index].buffer;
+
+    while (cursor < token -> lexeme) {
+        if (*cursor == '\n') {
+            line++;
+            col = 1;
+        } else {
+            col++;
+        }
+
+        cursor++;
+    }
+
+    diag -> line = line;
+    diag -> col = col;
+    diag -> len = 1;
+
+    diag_ctx.error_count++;
+}
+
+void err_delim_stack_max(Token* token, u32 file_index) {
+    diagnostics_extend();
+
+    Diagnostic* diag = &diag_ctx.diags[diag_ctx.diag_count++];
+
+    diag -> kind = DIAG_ERR;
+    diag -> msg = "what are you doing... delimiter stack is at max, how are you nesting this much";
+    diag -> index = file_index;
+    diag -> help = "stop what you are doing and go seek medical help";
+
+    u32 line = 1;
+    u32 col = 1;
+
+    const char* cursor = lilium_ctx.file_entries.entries[file_index].buffer;
+
+    while (cursor < token -> lexeme) {
+        if (*cursor == '\n') {
+            line++;
+            col = 1;
+        } else {
+            col++;
+        }
+
+        cursor++;
+    }
+
+    diag -> line = line;
+    diag -> col = col;
+    diag -> len = token -> length;
+
+    diag_ctx.error_count++;
+}
+
+void err_delim_stack_mismatch(Token* token, u32 file_index) {
+    diagnostics_extend();
+
+    Diagnostic* diag = &diag_ctx.diags[diag_ctx.diag_count++];
+
+    diag -> kind = DIAG_ERR;
+    diag -> msg = "mismatched delimiters";
+    diag -> index = file_index;
+    diag -> help = nullptr;
+
+    u32 line = 1;
+    u32 col = 1;
+
+    const char* cursor = lilium_ctx.file_entries.entries[file_index].buffer;
+
+    while (cursor < token -> lexeme) {
+        if (*cursor == '\n') {
+            line++;
+            col = 1;
+        } else {
+            col++;
+        }
+
+        cursor++;
+    }
+
+    diag -> line = line;
+    diag -> col = col;
+    diag -> len = token -> length;
+
+    diag_ctx.error_count++;
+}
+
+void err_delim_stack_unopened(Token* token, u32 file_index) {
+    diagnostics_extend();
+
+    Diagnostic* diag = &diag_ctx.diags[diag_ctx.diag_count++];
+
+    diag -> kind = DIAG_ERR;
+    diag -> msg = "unopened delimiter";
+    diag -> index = file_index;
+
+    if (token -> kind == TOK_RPAREN) {
+        diag -> help = "missing '('";
+    } else if (token -> kind == TOK_RBRACE) {
+        diag -> help = "missing '{'";
+    } else if (token -> kind == TOK_RBRACKET) {
+        diag -> help = "missing '['";
+    }
+
+
+    u32 line = 1;
+    u32 col = 1;
+
+    const char* cursor = lilium_ctx.file_entries.entries[file_index].buffer;
+
+    while (cursor < token -> lexeme) {
+        if (*cursor == '\n') {
+            line++;
+            col = 1;
+        } else {
+            col++;
+        }
+
+        cursor++;
+    }
+
+    diag -> line = line;
+    diag -> col = col;
+    diag -> len = token -> length;
+
+    diag_ctx.error_count++;
+}
+
+void err_delim_stack_unclosed(Token* token, u32 file_index) {
+    diagnostics_extend();
+
+    Diagnostic* diag = &diag_ctx.diags[diag_ctx.diag_count++];
+
+    diag -> kind = DIAG_ERR;
+    diag -> msg = "unclosed delimiter";
+    diag -> index = file_index;
+
+    switch (token -> kind) {
+        case TOK_LPAREN: {
+            diag -> help = "add a closing ')'";
+        } break;
+
+        case TOK_LBRACE: {
+            diag -> help = "add a closing '}'";
+        } break;
+
+        case TOK_LBRACKET: {
+            diag -> help = "add a closing ']'";
+        } break;
+
+        default: {
+            diag -> help = "add closing delimiter";
+        } break;
+    }
+
+    u32 line = 1;
+    u32 col = 1;
+
+    const char* cursor = lilium_ctx.file_entries.entries[file_index].buffer; 
+
+    while (cursor < token -> lexeme) {
+        if (*cursor == '\n') {
+            line++;
+            col = 1;
+        } else {
+            col++;
+        }
+
+        cursor++;
+    }
+
+    diag -> line = line;
+    diag -> col = col;
+    diag -> len = token -> length;
+
+    diag_ctx.error_count++;
 }
 
 const char* match_level_colour(DiagKind kind) {
