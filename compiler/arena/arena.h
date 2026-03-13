@@ -48,7 +48,7 @@ void* arena_memcpy(void* dest, const void* src, size_t len);
 char* arena_strdup(ArenaAllocator* arena, const char* str);
 
 void arena_reset(ArenaAllocator* arena);
-void arena_free(ArenaAllocator* arena); 
+void free_arena(ArenaAllocator* arena); 
 
 void print_arena_stats(const ArenaAllocator* arena);
 size_t total_capacity(const ArenaAllocator* arena);

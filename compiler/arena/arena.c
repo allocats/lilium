@@ -146,7 +146,7 @@ inline void arena_reset(ArenaAllocator* arena) {
     arena -> end = arena -> start;
 }
 
-void arena_free(ArenaAllocator* arena) {
+void free_arena(ArenaAllocator* arena) {
     ArenaBlock* block = arena -> start;
 
     while (block != NULL) {

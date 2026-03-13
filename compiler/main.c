@@ -21,7 +21,7 @@ DiagnosticCtx diag_ctx = {0};
 #define LILIUM_CLEANUP                                  \
     do {                                                \
         file_entries_cleanup(&lilium_ctx.file_entries); \
-        arena_free(&global_arena);                      \
+        free_arena(&global_arena);                      \
     } while(0);
 
 i32 main(i32 argc, char** argv) {
