@@ -18,6 +18,12 @@ static ArenaAllocator global_arena = {0};
 LiliumContext lilium_ctx = {0};
 DiagnosticCtx diag_ctx = {0};
 
+#define LILIUM_CLEANUP                                  \
+    do {                                                \
+        file_entries_cleanup(&lilium_ctx.file_entries); \
+        arena_free(&global_arena);                      \
+    } while(0);
+
 i32 main(i32 argc, char** argv) {
     init_ansi_codes();
      
@@ -63,6 +69,7 @@ i32 main(i32 argc, char** argv) {
 
     #ifdef DEBUG_MODE
     print_tokens(stdout, lilium_ctx.tokens);
+    print_arena_stats(&global_arena);
     #endif /* ifdef DEBUG_MODE */
 
 compiler_exit:; // Semicolon hack to allow for declarations, archaic language sigh
@@ -73,8 +80,7 @@ compiler_exit:; // Semicolon hack to allow for declarations, archaic language si
 
         diagnostics_print();
 
-        file_entries_cleanup(&lilium_ctx.file_entries);
-        arena_free(&global_arena);
+        LILIUM_CLEANUP;
 
         fprintf(
             stderr,
@@ -88,8 +94,7 @@ compiler_exit:; // Semicolon hack to allow for declarations, archaic language si
             ANSI_RESET
         );
     } else {
-        file_entries_cleanup(&lilium_ctx.file_entries);
-        arena_free(&global_arena);
+        LILIUM_CLEANUP;
 
         fprintf(
             stderr,
