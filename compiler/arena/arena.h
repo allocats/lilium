@@ -34,6 +34,7 @@ typedef struct ArenaBlock {
 typedef struct {
     ArenaBlock* start;
     ArenaBlock* end;
+    ArenaBlock* current;
     size_t default_capacity;
 } ArenaAllocator;
 
@@ -42,6 +43,7 @@ size_t align_size(size_t size);
 void init_arena(ArenaAllocator* arena, size_t default_capacity);
 
 void* arena_alloc(ArenaAllocator* arena, const size_t size);
+void* arena_resize(ArenaAllocator* arena, void* ptr, const size_t old_size, const size_t new_size);
 void* arena_realloc(ArenaAllocator* arena, void* ptr, const size_t old_size, const size_t new_size);
 void* arena_memset(void* ptr, const int value, size_t len);
 void* arena_memcpy(void* dest, const void* src, size_t len);
@@ -50,7 +52,7 @@ char* arena_strdup(ArenaAllocator* arena, const char* str);
 void arena_reset(ArenaAllocator* arena);
 void free_arena(ArenaAllocator* arena); 
 
-void print_arena_stats(const ArenaAllocator* arena);
+void print_arena_stats(const ArenaAllocator* arena, const char* label);
 size_t total_capacity(const ArenaAllocator* arena);
 size_t total_usage(const ArenaAllocator* arena); 
 

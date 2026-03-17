@@ -62,6 +62,7 @@ inline size_t align_size(const size_t size) {
 void init_arena(ArenaAllocator* arena, const size_t default_capacity) {
     assert(arena);
     arena -> start = NULL;
+    arena -> current = arena -> start;
     arena -> end = NULL;
     arena -> default_capacity = default_capacity == 0 ? ARENA_DEFAULT_CAPACITY : align_size(default_capacity);
 }
@@ -94,38 +95,54 @@ static inline void free_block(ArenaBlock* block) {
 }
 
 void* arena_alloc(ArenaAllocator* arena, const size_t size) {
-    ArenaBlock* block = arena -> end;
+    const size_t aligned = align_size(size);
+    ArenaBlock* block = arena -> current;
+
     if (UNLIKELY(!block)) {
-        block = new_block(arena -> default_capacity, size);
+        block = new_block(arena -> default_capacity, aligned);
+
+        arena -> start = block;
+        arena -> current = block;
         arena -> end = block;
-        arena -> start = arena -> end;
     }
 
-    const size_t usage = block -> usage;
-    const size_t capacity = block -> capacity;
-    const size_t available = capacity - usage;
+    if (UNLIKELY(block -> usage + aligned > block -> capacity)) {
+        ArenaBlock* next = new_block(arena -> default_capacity, aligned);
 
-    if (LIKELY(size <= available)) {
-        void* result = (char*) block -> data + usage;
-        block -> usage += size;
-        return result;
-    }
-
-    ArenaBlock* next = block -> next;
-    while (next && next -> usage + size > next -> capacity) {
-        next = next -> next;
-    }
-
-    if (!next) {
-        next = new_block(arena -> default_capacity, size);
         block -> next = next;
+        arena -> end = next;
+        arena -> current = next;
+        block = next;
     }
 
-    arena -> end = next;
-
-    void* result = (char*) next -> data + next -> usage;
-    next -> usage += size;
+    void* result = (char*) block -> data + block -> usage;
+    block -> usage += aligned;
     return result;
+}
+
+void* arena_resize(ArenaAllocator* arena, void* ptr, const size_t old_size, const size_t new_size) {
+    const size_t aligned_old = align_size(old_size);
+    const size_t aligned_new = align_size(new_size);
+
+    ArenaBlock* block = arena -> current;
+
+    char* expected = (char*) block -> data + block -> usage - aligned_old;
+
+    if (LIKELY(ptr == expected)) {
+        const size_t extra = aligned_new - aligned_old;
+
+        if (LIKELY(block -> usage + extra <= block -> capacity)) {
+            arena_memset_impl((char*) ptr + aligned_old, 0, extra);
+            block -> usage += extra;
+            return ptr;
+        }
+
+        block -> usage -= aligned_old;
+    }
+
+    void* new_ptr = arena_alloc(arena, aligned_new);
+    arena_memcpy_impl(new_ptr, ptr, old_size);
+    return new_ptr;
 }
 
 char* arena_strdup(ArenaAllocator* arena, const char* str) {
@@ -159,15 +176,17 @@ void free_arena(ArenaAllocator* arena) {
     arena -> end = NULL;
 }
 
-void print_arena_stats(const ArenaAllocator* arena) {
+void print_arena_stats(const ArenaAllocator* arena, const char* label) {
     size_t usage = total_usage(arena);
     size_t capacity = total_capacity(arena);
 
-    printf("\n========= Arena Stats =========\n\n");
+    const char* name = label != NULL ? label : "Arena";
+
+    printf("\n========= %s Stats =========\n\n", name);
     printf("    Capacity: %zu bytes\n", capacity);
     printf("    Usage: %zu bytes\n", usage);
     printf("    Percentage: %.4f%%\n\n", (double)usage / (double)capacity * 100);
-    printf("========= Arena Stats =========\n\n");
+    printf("========= %s Stats =========\n\n", name);
 }
 
 size_t total_capacity(const ArenaAllocator* arena) {
