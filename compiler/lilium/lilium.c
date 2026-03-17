@@ -7,14 +7,20 @@
 
 extern DiagnosticCtx diag_ctx;
 
-void init_lilium_context(LiliumContext* lilium_ctx, ArenaAllocator* arena, i32 argc, char** argv) {
-    lilium_ctx -> arena = arena;
+void init_lilium_context(
+    LiliumContext* lilium_ctx,
+    ArenaAllocator* global_arena,
+    ArenaAllocator* tokens_arena,
+    i32 argc,
+    char** argv
+) {
+    lilium_ctx -> arena = global_arena;
 
-    lilium_ctx -> tokens.items = arena_alloc(arena, sizeof(Token) * 256);
+    lilium_ctx -> tokens.items = arena_alloc(tokens_arena, sizeof(Token) * 256);
     lilium_ctx -> tokens.count = 0;
     lilium_ctx -> tokens.capacity = 256;
 
-    lilium_ctx -> file_entries.entries = arena_alloc(arena, sizeof(FileEntry) * 32);
+    lilium_ctx -> file_entries.entries = arena_alloc(global_arena, sizeof(FileEntry) * 32);
     lilium_ctx -> file_entries.count = 0;
     lilium_ctx -> file_entries.capacity = 32;
     lilium_ctx -> file_entries.tokenised = 0;
@@ -25,7 +31,7 @@ void init_lilium_context(LiliumContext* lilium_ctx, ArenaAllocator* arena, i32 a
         if (arg[0] == '-') {
             printf("TODO: Support arguments (%s)\n", arg);
         } else {
-            bool result = file_map(arena, &lilium_ctx -> file_entries, arg);
+            bool result = file_map(global_arena, &lilium_ctx -> file_entries, arg);
 
             if (!result) {
                 diag_ctx.error_count += 1;

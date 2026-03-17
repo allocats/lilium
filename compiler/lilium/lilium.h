@@ -4,4 +4,4 @@
 
 #include "../arena/arena.h"
 
-void init_lilium_context(LiliumContext* lilium_ctx, ArenaAllocator* g_arena, i32 argc, char** argv);
+void init_lilium_context(LiliumContext* lilium_ctx, ArenaAllocator* global_arena, ArenaAllocator* tokens_arena, i32 argc, char** argv);
