@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../token/types.h"
 #include "../utils/types.h"
 
 #define IS_SYMBOL_RESOLVED  (1 << 0)
@@ -14,6 +15,16 @@
 
 typedef struct AstNode AstNode;
 
+typedef struct {
+    u32 start;
+    u32 end;
+} Span;
+
+/*
+*
+*   Not supported yet: macro, match
+*
+*/
 #define AST_NODES(X)    \
     X(AST_ERROR)        \
                         \
@@ -59,7 +70,6 @@ typedef struct AstNode AstNode;
     X(AST_MEMBER_ACCESS)\
     X(AST_STRUCT_INIT)  \
 
-
 typedef enum [[gnu::packed]] {
     AST_NODES(GENERATE_ENUM)
 } AstKind;
@@ -70,10 +80,84 @@ static const char* AST_KIND_STRINGS[] = {
 
 #undef AST_NODES
 
+/*
+*
+*  Base Types for AstType
+*
+*/
+#define AST_BASE_TYPES(X)   \
+    X(BASE_I8)              \
+    X(BASE_I16)             \
+    X(BASE_I32)             \
+    X(BASE_I64)             \
+                            \
+    X(BASE_U8)              \
+    X(BASE_U16)             \
+    X(BASE_U32)             \
+    X(BASE_U64)             \
+                            \
+    X(BASE_F32)             \
+    X(BASE_F64)             \
+                            \
+    X(BASE_ISIZE)           \
+    X(BASE_USIZE)           \
+                            \
+    X(BASE_BOOL)            \
+    X(BASE_STR)             \
+                            \
+    X(BASE_NAMED)           \
+
+typedef enum {
+    AST_BASE_TYPES(GENERATE_ENUM)
+} BaseType;
+
+static const char* AST_BASE_TYPES_STRINGS[] = {
+    AST_BASE_TYPES(GENERATE_STRING)
+};
+
+#undef AST_BASE_TYPES
+
+/*
+*
+*  Type suffix for AstType
+*
+*/
+#define TYPE_SUFFIX_KINDS(X)\
+    X(SUFFIX_POINTER)       \
+    X(SUFFIX_SLICE)         \
+    X(SUFFIX_ARRAY)         \
+
+typedef enum {
+    TYPE_SUFFIX_KINDS(GENERATE_ENUM)
+} SuffixKind;
+
+static const char* TYPE_SUFFIX_KIND_STRINGS[] = {
+    TYPE_SUFFIX_KINDS(GENERATE_STRING)
+};
+
+#undef TYPE_SUFFIX_KINDS
+
 typedef struct {
-    u32 start;
-    u32 end;
-} Span;
+    SuffixKind kind;
+    u32        size;
+} TypeSuffix;
+
+typedef struct {
+    BaseType kind;
+    bool is_const;
+
+    char* ptr;
+    usize len;
+
+    TypeSuffix suffix[8];
+} AstType;
+
+typedef struct {
+    AstNode** stmts;
+    u32 stmt_count;
+    u32 stmt_capacity;
+} AstBlock;
+
 
 typedef struct {
     char* ptr; 
@@ -100,10 +184,176 @@ typedef struct {
     char* ptr;
     usize len;
 
-    AstNode* variants;
+    AstNode* value;
+} AstVariant;
+
+typedef struct {
+    char* ptr;
+    usize len;
+
+    AstType type;
+
+    AstVariant* variants;
+    u32 variant_count;
+    u32 variant_capacity;
+} AstEnumDecl;
+
+typedef struct {
+    char* ptr;
+    usize len;
+
+    AstType type;
+
+    AstNode* default_value;
+} AstField;
+
+typedef struct {
+    char* ptr;
+    usize len;
+
+    AstField* fields;
+    u32 field_count;
+    u32 field_capacity;
+} AstStructDecl;
+
+typedef struct {
+    char* ptr;
+    usize len;
+
+    AstField* fields;
+    u32 field_count;
+    u32 field_capacity;
+} AstUnionDecl;
+
+typedef struct {
+    char* ptr;
+    usize len;
+
+    AstType type;
+} AstParameter;
+
+typedef struct {
+    char* ptr;
+    usize len;
+
+    AstType return_type;
+
+    AstParameter* params;
+    u32 param_count;
+    u32 param_capacity;
+
+    AstBlock block;
+} AstFunctionDecl;
+
+typedef struct {
+    AstNode* condition;
+    AstBlock block;
+} AstIfBranch;
+
+typedef struct {
+    AstIfBranch* branches;
+    u32 branch_count;
+    u32 branch_capacity;
+
+    // null if no else statement
+    // points to node of AST_BLOCK kind
+    AstNode* else_block;
+} AstIf;
+
+typedef struct {
+    AstBlock block;
+} AstInfLoop;
+
+typedef struct {
+    AstNode* condition;
+
+    AstBlock block;
+} AstWhileLoop;
+
+typedef struct {
+    // i: i32 = 0
+    AstNode* init;
+
+    // i <= 10
+    AstNode* cond;
+
+    // i += 1
+    AstNode* step;
+
+    AstBlock block;
+} AstForLoop;
+
+typedef struct {
+    char* ptr;
+    usize len;
+
+    // Optional
+    AstNode* value;
+
+    AstType type;
+} AstLet;
+
+typedef struct {
+    char* ptr;
+    usize len;
+
+    // NOT Optional
+    AstNode* value;
+
+    AstType type;
+} AstConst;
+
+typedef struct {
+    AstNode* expression;
+} AstDefer;
+
+typedef struct {
+    AstNode* expression;
+} AstReturn;
+
+typedef struct {
+    char* ptr;
+    usize len;
+} AstIdent;
+
+typedef struct {
+    AstIdent ident;
+
+    AstNode** args;
     u32 arg_count;
     u32 arg_capacity;
-} AstEnum;
+} AstCall;
+
+typedef struct {
+    AstNode* ident;
+    AstNode* value;
+
+    TokenKind op;
+} AstAssign;
+
+typedef struct {
+    AstNode* left;
+    AstNode* right;
+
+    TokenKind op;
+} AstBinary;
+
+typedef struct {
+    AstNode* operand;
+
+    TokenKind op;
+} AstUnary;
+
+typedef struct {
+    AstNode* ident;
+    AstNode* index;
+} AstIndex;
+
+typedef struct {
+    AstNode* ident;
+    AstIdent field;
+    bool pointer_access;
+} AstMemberAccess;
 
 typedef struct AstNode {
     AstKind kind;
@@ -117,5 +367,30 @@ typedef struct AstNode {
         AstImport import_decl;
 
         AstBuiltinCall builtin_call;
+
+        AstEnumDecl     enum_decl;
+        AstStructDecl   struct_decl;
+        AstUnionDecl    union_decl;
+        AstFunctionDecl function_decl;
+
+        AstIf if_stmt;
+
+        AstInfLoop   inf_loop;
+        AstForLoop   for_loop;
+        AstWhileLoop while_loop;
+
+        AstLet   let_stmt;
+        AstConst const_stmt;
+
+        AstDefer  defer_stmt;
+        AstReturn return_stmt;
+
+        AstCall         call;
+        AstIdent        ident;
+        AstAssign       assignment;
+        AstBinary       binary_op;
+        AstUnary        unary_op;
+        AstIndex        index;
+        AstMemberAccess member_access;
     };
 } AstNode;
