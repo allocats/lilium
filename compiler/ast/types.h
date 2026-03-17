@@ -107,7 +107,7 @@ static const char* AST_KIND_STRINGS[] = {
                             \
     X(BASE_NAMED)           \
 
-typedef enum {
+typedef enum [[gnu::packed]] {
     AST_BASE_TYPES(GENERATE_ENUM)
 } BaseType;
 
@@ -137,17 +137,17 @@ static const char* TYPE_SUFFIX_KIND_STRINGS[] = {
 
 #undef TYPE_SUFFIX_KINDS
 
-typedef struct {
+typedef struct [[gnu::packed]] {
     SuffixKind kind;
-    u32        size;
+    u16        size;
 } TypeSuffix;
 
 typedef struct {
     BaseType kind;
     bool is_const;
 
+    u16   len;
     char* ptr;
-    usize len;
 
     TypeSuffix suffix[8];
 } AstType;
@@ -157,7 +157,6 @@ typedef struct {
     u32 stmt_count;
     u32 stmt_capacity;
 } AstBlock;
-
 
 typedef struct {
     char* ptr; 
@@ -191,7 +190,9 @@ typedef struct {
     char* ptr;
     usize len;
 
-    AstType type;
+    // For now only support integer types
+    // i32, u8, i64
+    TokenKind underlying_type;
 
     AstVariant* variants;
     u32 variant_count;
@@ -234,15 +235,15 @@ typedef struct {
 
 typedef struct {
     char* ptr;
-    usize len;
+    u32 len;
 
-    AstType return_type;
-
+    u16 param_count;
+    u16 param_capacity;
     AstParameter* params;
-    u32 param_count;
-    u32 param_capacity;
 
     AstBlock block;
+
+    AstType return_type;
 } AstFunctionDecl;
 
 typedef struct {
@@ -317,7 +318,7 @@ typedef struct {
 } AstIdent;
 
 typedef struct {
-    AstIdent ident;
+    AstNode* ident;
 
     AstNode** args;
     u32 arg_count;
