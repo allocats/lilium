@@ -395,3 +395,9 @@ typedef struct AstNode {
         AstMemberAccess member_access;
     };
 } AstNode;
+
+typedef struct {
+    AstNode* nodes;
+    u32 count;
+    u32 capacity;
+} Ast;

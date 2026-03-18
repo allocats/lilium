@@ -11,14 +11,19 @@ void init_lilium_context(
     LiliumContext* lilium_ctx,
     ArenaAllocator* global_arena,
     ArenaAllocator* tokens_arena,
+    ArenaAllocator* ast_arena,
     i32 argc,
     char** argv
 ) {
     lilium_ctx -> arena = global_arena;
 
-    lilium_ctx -> tokens.items = arena_alloc(tokens_arena, sizeof(Token) * 256);
+    lilium_ctx -> tokens.items = arena_alloc(tokens_arena, sizeof(Token) * 1024);
     lilium_ctx -> tokens.count = 0;
-    lilium_ctx -> tokens.capacity = 256;
+    lilium_ctx -> tokens.capacity = 1024;
+
+    lilium_ctx -> ast.nodes = arena_alloc(ast_arena, sizeof(AstNode) * 256);
+    lilium_ctx -> ast.count = 0;
+    lilium_ctx -> ast.capacity = 256;
 
     lilium_ctx -> file_entries.entries = arena_alloc(global_arena, sizeof(FileEntry) * 32);
     lilium_ctx -> file_entries.count = 0;

@@ -15,6 +15,7 @@
 
 static ArenaAllocator global_arena = {0};
 static ArenaAllocator tokens_arena = {0};
+static ArenaAllocator ast_arena = {0};
 
 LiliumContext lilium_ctx = {0};
 DiagnosticCtx diag_ctx = {0};
@@ -22,8 +23,6 @@ DiagnosticCtx diag_ctx = {0};
 #define LILIUM_CLEANUP                                  \
     do {                                                \
         file_entries_cleanup(&lilium_ctx.file_entries); \
-        free_arena(&global_arena);                      \
-        free_arena(&tokens_arena);                      \
     } while(0);
 
 i32 main(i32 argc, char** argv) {
@@ -44,8 +43,9 @@ i32 main(i32 argc, char** argv) {
 
     init_arena(&global_arena, 8192);
     init_arena(&tokens_arena, 8192);
+    init_arena(&ast_arena, 16384);
     init_diagnostic_context(&global_arena, &diag_ctx);
-    init_lilium_context(&lilium_ctx, &global_arena, &tokens_arena, argc, argv);
+    init_lilium_context(&lilium_ctx, &global_arena, &tokens_arena, &ast_arena, argc, argv);
 
     if (lilium_ctx.file_entries.count == 0) {
         fprintf(
@@ -74,6 +74,7 @@ i32 main(i32 argc, char** argv) {
     print_tokens(stdout, lilium_ctx.tokens);
     print_arena_stats(&global_arena, "Global Arena");
     print_arena_stats(&tokens_arena, "Tokens Arena");
+    print_arena_stats(&ast_arena, "AST Arena");
     #endif /* ifdef DEBUG_MODE */
 
 compiler_exit:; // Semicolon hack to allow for declarations, archaic language sigh
