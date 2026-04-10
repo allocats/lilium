@@ -3,6 +3,7 @@
 #include "../cli/cli.h"
 #include "../lilium/types.h"
 #include "../utils/macros.h"
+#include "types.h"
 
 #include <stdio.h>
 
@@ -313,6 +314,59 @@ void err_delim_stack_unclosed(Token* token, u32 file_index) {
     diag -> line = line;
     diag -> col = col;
     diag -> len = token -> length;
+
+    diag_ctx.error_count++;
+}
+
+void err_ast_add(char* msg, char* help, Token* token, u32 location, u32 file_index) {
+    diagnostics_extend();
+
+    Diagnostic* diag = &diag_ctx.diags[diag_ctx.diag_count++];
+
+    diag -> kind = DIAG_ERR;
+    diag -> msg = msg;
+    diag -> help = help;
+    diag -> index = file_index;
+
+    u32 line = 1;
+    u32 col = 1;
+
+    const char* cursor = lilium_ctx.file_entries.entries[file_index].buffer; 
+    const char* end_of_prev_line = cursor;
+
+    while (cursor < token -> lexeme) {
+        if (*cursor == '\n') {
+            end_of_prev_line = cursor;
+            line++;
+            col = 1;
+        } else {
+            col++;
+        }
+
+        cursor++;
+    }
+
+    diag -> line = line;
+    diag -> col = col;
+    diag -> len = token -> length;
+
+    if (location & LOC_START_OF_TOK) {
+        diag -> len = 1;
+    } else if (location & LOC_END_OF_TOK) {
+        diag -> len = 1;
+        diag -> col += token -> length;
+    } else if (location & LOC_WHOLE_TOK) {
+        diag -> len = token -> length;
+    } else if (location & LOC_WHOLE_LINE) {
+        const char* end_of_line = cursor;
+
+        while (*end_of_line != 0 || *end_of_line == '\n') {
+            end_of_line++;
+        }
+
+        diag -> len = end_of_line - end_of_prev_line;
+        diag -> col = 1;
+    }
 
     diag_ctx.error_count++;
 }

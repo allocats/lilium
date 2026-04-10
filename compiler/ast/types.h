@@ -397,6 +397,7 @@ typedef struct AstNode {
 } AstNode;
 
 typedef struct {
+    ArenaAllocator* arena;
     AstNode* nodes;
     u32 count;
     u32 capacity;

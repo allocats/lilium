@@ -1,6 +1,17 @@
 #include "token.h"
+#include "types.h"
 
 #include <stdio.h>
+
+void print_token(Token* token) {
+    printf(
+        "Kind = %s\nLexeme = \'%.*s\'\nLength = %u\n",
+        TOKEN_KIND_STRINGS[token -> kind],
+        token -> length,
+        token -> lexeme,
+        token -> length
+    );
+}
 
 void print_tokens(FILE* fd, Tokens tokens) {
     fprintf(fd, "\n");

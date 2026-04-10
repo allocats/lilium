@@ -21,3 +21,5 @@ void err_delim_stack_max(Token* token, u32 file_index);
 void err_delim_stack_mismatch(Token* token, u32 file_index);
 void err_delim_stack_unopened(Token* token, u32 file_index);
 void err_delim_stack_unclosed(Token* token, u32 file_index);
+
+void err_ast_add(char* msg, char* help, Token* token, u32 location, u32 file_index);

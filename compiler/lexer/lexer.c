@@ -33,7 +33,7 @@ char* lex_char_lit(Tokens* tokens, char* cursor, u32 file_index);
 char* lex_string_lit(Tokens* tokens, char* cursor, u32 file_index);
 char* lex_invalid(Tokens* tokens, char* cursor);
 
-void lex_tokens(ArenaAllocator* tokens_arena, Tokens* tokens) {
+void lex_tokens(Tokens* tokens) {
     DelimStack delim_stack = {
         .delims = {0},
         .top = -1
@@ -49,7 +49,7 @@ void lex_tokens(ArenaAllocator* tokens_arena, Tokens* tokens) {
             if (UNLIKELY(tokens -> count >= tokens -> capacity)) {
                 usize size = tokens -> capacity * sizeof(Token);
 
-                tokens -> items = arena_resize(tokens_arena, tokens -> items, size, size * 2); 
+                tokens -> items = arena_resize(tokens -> arena, tokens -> items, size, size * 2); 
                 tokens -> capacity *= 2;
             }
 

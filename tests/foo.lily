@@ -1,5 +1,1 @@
-// This is not a specific test case, just for me to mess around with
-
-fn main() {
-    let x: i32 = 0;
-}
+import "std/io";

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../arena/arena.h"
 #include "../utils/types.h"
 
 #define TOKENS(X)       \
@@ -143,6 +144,7 @@ typedef struct {
 } Token;
 
 typedef struct {
+    ArenaAllocator* arena;
     Token* items;
     usize count;
     usize capacity;

@@ -4,6 +4,7 @@
 #include "files/files.h"
 #include "lexer/lexer.h"
 #include "lilium/lilium.h"
+#include "parser/parser.h"
 #include "utils/timer.h"
 #include "utils/types.h"
 
@@ -66,7 +67,9 @@ i32 main(i32 argc, char** argv) {
 
     timer_start(&timer);
 
-    lex_tokens(&tokens_arena, &lilium_ctx.tokens);
+    lex_tokens(&lilium_ctx.tokens);
+
+    parse_tokens(&lilium_ctx.ast, &lilium_ctx.tokens);
 
     timer_end(&timer);
 

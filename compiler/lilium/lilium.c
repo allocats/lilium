@@ -17,10 +17,12 @@ void init_lilium_context(
 ) {
     lilium_ctx -> arena = global_arena;
 
+    lilium_ctx -> tokens.arena = tokens_arena;
     lilium_ctx -> tokens.items = arena_alloc(tokens_arena, sizeof(Token) * 1024);
     lilium_ctx -> tokens.count = 0;
     lilium_ctx -> tokens.capacity = 1024;
 
+    lilium_ctx -> ast.arena = ast_arena;
     lilium_ctx -> ast.nodes = arena_alloc(ast_arena, sizeof(AstNode) * 256);
     lilium_ctx -> ast.count = 0;
     lilium_ctx -> ast.capacity = 256;
