@@ -4,7 +4,7 @@
 
 #include "../arena/arena.h"
 #include "../ast/types.h"
-#include "../token/types.h"
+#include "../token/token.h"
 
 // Entry function
 void parse_tokens(Ast* ast, Tokens* tokens);
