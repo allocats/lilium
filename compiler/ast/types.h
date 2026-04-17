@@ -163,11 +163,15 @@ typedef struct {
     usize len;
 } AstImport;
 
-// Namespace declaration for the file c:
-// only one allowed per file
+// Namespace declaration for the file, has segments
+// only one allowed per file, example:
+//
+// module std.io;
 typedef struct {
-    char* ptr; 
-    usize len;
+    char** ptrs; 
+    usize* lens;
+    u32 count;
+    u32 capacity;
 } AstModule;
 
 typedef struct {
@@ -358,8 +362,11 @@ typedef struct {
 
 typedef struct AstNode {
     AstKind kind;
+    u8 _padding;
     u16 flags;
+
     u32 file_index;
+    u32 module_index;
 
     Span span;
 

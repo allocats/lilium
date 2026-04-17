@@ -31,15 +31,14 @@ void parse_tokens(Ast* ast, Tokens* tokens) {
 
         AstNode* node = &ast -> nodes[ast -> count++];
 
-        Token* token = parser_peek(&p);
+        Token* token = parser_advance(&p);
         
         switch (token -> kind) {
             case TOK_MODULE: {
-
+                parse_module_decl(&p, node);
             } break;
 
             case TOK_IMPORT: {
-                parser_advance(&p);
                 parse_import_decl(&p, node); 
             } break;
 

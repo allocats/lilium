@@ -11,6 +11,7 @@ void parse_tokens(Ast* ast, Tokens* tokens);
 
 // Top level declarations
 void parse_import_decl(Parser* p, AstNode* node);
+void parse_module_decl(Parser* p, AstNode* node);
 
 // Recovery
 void recover_top_level_decl(Parser* p);
