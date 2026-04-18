@@ -4,4 +4,4 @@
 
 #include <stdio.h>
 
-void print_ast(FILE* fd, Ast* ast);
+void print_ast(FILE* fd, Ast ast);

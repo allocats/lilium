@@ -1,4 +1,5 @@
 #include "arena/arena.h"
+#include "ast/ast.h"
 #include "cli/cli.h"
 #include "diagnostics/diagnostics.h"
 #include "files/files.h"
@@ -75,6 +76,7 @@ i32 main(i32 argc, char** argv) {
 
     #ifdef DEBUG_MODE
     print_tokens(stdout, lilium_ctx.tokens);
+    print_ast(stdout, lilium_ctx.ast);
     print_arena_stats(&global_arena, "Global Arena");
     print_arena_stats(&tokens_arena, "Tokens Arena");
     print_arena_stats(&ast_arena, "AST Arena");
