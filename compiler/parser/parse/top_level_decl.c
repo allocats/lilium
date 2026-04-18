@@ -105,8 +105,8 @@ void parse_import_decl(Parser* p, AstNode* node) {
         return;
     }
 
-    node -> import_decl.ptr = token -> lexeme;
-    node -> import_decl.len = token -> length;
+    node -> import_decl.ptr = token -> lexeme + 1;
+    node -> import_decl.len = token -> length - 2;
 
     parser_advance(p);
 

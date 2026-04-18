@@ -45,6 +45,8 @@ void parse_tokens(Ast* ast, Tokens* tokens) {
             case TOK_EOF: {
                 p.file_index += 1;
                 p.cursor += 1;
+
+                ast -> count -= 1;
             } break;
 
             default: {
